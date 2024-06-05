@@ -8,7 +8,7 @@ if [ $# -ne 2 ]; then
 fi
 
 if [ "$( grep $name phonebook.txt )" = "" ]; then
-  if [ "$( echo $number | grep -o '[0-9]\{2,3\}[-]\?[0-9]\{3,4\}[-]\?[0-9]\{4\}' )" = "" ]; then
+  if [ "$( echo $number | grep -E -o '^[0-9]{2,3}[-]{1}[0-9]{3,4}[-]{1}[0-9]{4}$' )" = "" ]; then
     echo "번호가 아니거나 잘못된 형식입니다."
     exit 2
   else
@@ -31,12 +31,14 @@ if [ "$( grep $name phonebook.txt )" = "" ]; then
       *) echo "유효하지 않은 지역번호 입니다."; exit 3
     esac
 
-    echo $name $number $region >> phonebook.txt
+    echo -e "$name $number $region" >> phonebook.txt
+    LC_COLLATE=C sort phonebook.txt -o phonebook.txt
   fi
 else
   aLine=$( grep $name phonebook.txt )
+  
   if [ "$( echo $aLine | grep $number )" = "" ]; then
-    if [ "$( echo $number | grep -o '[0-9]\{2,3\}[-]\?[0-9]\{3,4\}[-]\?[0-9]\{4\}' )" = "" ]; then
+    if [ "$( echo $number | grep -E -o '^[0-9]{2,3}[-]{1}[0-9]{3,4}[-]{1}[0-9]{4}$' )" = "" ]; then
       echo "번호가 아니거나 잘못된 형식입니다."
       exit 2
     else
@@ -59,9 +61,10 @@ else
         *) echo "유효하지 않은 지역번호 입니다."; exit 3
       esac
 
-      echo $name $number $region >> phonebook.txt
+      echo -e "$name $number $region" >> phonebook.txt
+      LC_COLLATE=C sort phonebook.txt -o phonebook.txt
     fi
   else
-    echo $aLine | grep $number
+    grep $number phonebook.txt
   fi
 fi
